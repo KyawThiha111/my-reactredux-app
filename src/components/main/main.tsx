@@ -1,82 +1,101 @@
 import { useState } from "react";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-import { login, logout } from "../../features/user";
+import { useSelector,useDispatch } from "react-redux";
+import { addTodo,deleteTodo,editNote } from "../../features/todo";
+interface todoStateType{
+    todo: {
+        value:[{task:string, note:string,id:number}]
+    }
+}
 export const Main = () => {
-  const [username, setUsername] = useState("");
-  const [age, setAge] = useState(0);
-  const [password, setPassword] = useState("");
-  const [isLogin, setIsLogin] = useState(false);
-  const newUser = useSelector((state: any) => state.user.value);
+  const todoArr = useSelector((state:todoStateType)=> state.todo.value);
+  const [todoTask,setTodoTask] = useState("");
+  const [todoNote,setTodoNote] = useState("");
   const dispatch = useDispatch();
+  const [id,setId] = useState(1);
+  const [updatednote,setUpdatedNote] = useState("");
+  const handleTodoBtn = (e:any)=>{
+     e.preventDefault();
+      setId(id+1);
+      dispatch(
+        addTodo({task:todoTask, note:todoNote,id:id})
+      )
+  }
+
+  const deleteTodoBtn = (id:Number)=>{
+      dispatch(deleteTodo(id))
+  }
+
+  const updateNoteBtn = (id:Number)=>{
+     dispatch(editNote({id,updatednote}))
+  }
+
   return (
     <div>
-      <h2>Login Page</h2>
+      <h2>Todo List</h2>
       {/* Form */}
-      {!isLogin && (
+     
         <div className="row  text-white d-flex justify-content-center align-items-center">
           <form className="col-4 bg-success">
             <div className="mb-3 display-flex">
               <input
                 type="text"
                 className="form-control mt-2"
-                id="name"
+                id="task"
                 aria-describedby="emailHelp"
-                placeholder="Your Name"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setUsername(e.target.value)
-                }
+                placeholder="Yout task"
+                onChange={(e)=>{
+                    setTodoTask(e.target.value)
+                }}
               />
               <input
                 type="text"
                 className="form-control my-3"
-                id="age"
+                id="note"
                 aria-describedby="emailHelp"
-                placeholder="Your Age"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setAge(Number(e.target.value))
-                }
+                placeholder="Yout Note"
+                onChange={(e)=>{
+                    setTodoNote(e.target.value)
+                }}
               />
 
-              <input
-                type="password"
-                className="form-control"
-                id="password"
-                aria-describedby="emailHelp"
-                placeholder="Password"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setPassword(e.target.value)
-                }
-              />
             </div>
 
             <button
               type="submit"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsLogin(!isLogin);
-                dispatch(
-                  login({ name: username, age: age, password: password })
-                );
-              }}
               className="btn btn-outline-warning"
+              onClick={handleTodoBtn}
             >
               Submit
             </button>
           </form>
         </div>
-      )}
-      {/* User Display */}
-      <div>
-        <div>name:{newUser.name} </div>
-        <div>age:{newUser.age} </div>
-        <div>password:{newUser.password} </div>
-        {isLogin && (
-          <button onClick={() => {dispatch(logout()); setIsLogin(!isLogin)}} className="btn btn-danger">
-            Logout
-          </button>
-        )}
-      </div>
+      
+      {/* Todo items */}
+      {
+        todoArr.length>0? (
+          <div className=" mt-5 text-black row d-flex justify-content-center align-items-center">
+          <div className="col-md-4">
+             {todoArr.map((eachTodo:any)=>{
+                return (
+                  <div className="border bg-white px-3 py-2 border-black border-3">
+                      <h3>{eachTodo.task}</h3>
+                      <p>{eachTodo.note}</p>
+                      <input onChange={(event)=>setUpdatedNote(event.target.value)} type="text" placeholder="Edit your note."/>
+                      <button onClick={()=>updateNoteBtn(eachTodo.id)} className="btn btn-success">Update</button>
+                      <button onClick={()=>deleteTodoBtn(eachTodo.id)} className="btn btn-warning">DELETE</button>
+                  </div>
+                )
+             })}
+          </div>
+        </div>
+        ):(
+          <div className="mt-5  row text-black row d-flex justify-content-center align-items-center">
+            <h2 className="col-4 bg-white py-2 text-center">Nothing On Your Todo</h2>
+          </div>
+        )
+      }
+    
+    
     </div>
   );
 };

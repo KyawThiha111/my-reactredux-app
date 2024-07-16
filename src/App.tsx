@@ -8,7 +8,7 @@ import { Notfound } from './components/notfound/unfound';
 import { BrowserRouter as Router,Routes,Route } from 'react-router-dom';
 function App() {
   return (
-    <div className='bigContainer'>
+    <div style={{height:"100vh"}} className='bigContainer'>
        <Router>
         <Nav/>
       <Routes>
